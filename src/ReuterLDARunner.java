@@ -20,6 +20,6 @@ public class ReuterLDARunner {
 		lda.run();
 		lda.generateParameters();
 		Locale.setDefault(Locale.US);
-		lda.storeParametersToFile("reuters/result/parameters.txt");
+		lda.storeParametersToFile("reuters/result/small.txt");
 	}
 }

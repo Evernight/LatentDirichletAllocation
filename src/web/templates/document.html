@@ -1,4 +1,22 @@
-Document {{ document_name }}:
-{% for lda_topic in lda_topics %}
-	{{ lda_topic }}
-{% endfor %}
+{% include 'header.html' %}
+<div id="doc_text">
+	<h3>Document raw text</h3>
+	<div id="text_container">
+	{{ text }}
+	</div>
+</div>
+<div id ="lda_topics">
+	<h3>LDA topics</h3>
+	<table class="probabilities">
+	<tr>
+	<th>topic</th>
+	<th>probability</th>
+	</tr>
+	{% for item in distribution %}
+		<tr>
+		<td><a href="/lda_topic/{{ item[0] }}">{{ item[0] }}</a></td> <td>{{ item[1] }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+</div>
+{% include 'footer.html' %}

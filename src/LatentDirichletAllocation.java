@@ -1,5 +1,6 @@
 import org.apache.log4j.Logger;
 
+import javax.lang.model.type.PrimitiveType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -19,11 +20,11 @@ public class LatentDirichletAllocation {
 	private static Logger log = Logger.getLogger(LatentDirichletAllocation.class);
 
 	// Parameters
-	public int topicsCount = 100;
+	public int topicsCount = 10;
 	public double alpha = (double) 50/topicsCount;
 	public double beta = 0.01;
 
-	public int iterationsCount = 40;
+	public int iterationsCount = 15;
 
 	//Private structures
 	private DocumentCollection collection;
@@ -163,6 +164,20 @@ public class LatentDirichletAllocation {
 		}
 	}
 
+	public void saveCurrentSampleToFile(String filename) throws FileNotFoundException {
+		PrintWriter out = new PrintWriter(new File(filename));
+
+		out.write(topicsCount + " " + vocabSize + " " + docsCount + "\n");
+		for (int i = 0; i < docsCount; ++i) {
+			out.write(wordIDs[i].size() + "\n");
+			for (int j = 0; j < wordIDs[i].size(); ++j)
+				out.write(wordIDs[i].get(j) + " " + wordAssignment[i].get(j) + " ");
+			out.write("\n");
+		}
+
+		out.close();
+	}
+
 	public void storeParametersToFile(String filename) throws FileNotFoundException {
 		log.info(String.format("Storing data to file %s", filename));
 		PrintWriter out = new PrintWriter(new File(filename));
@@ -170,7 +185,7 @@ public class LatentDirichletAllocation {
 		out.write(topicsCount + " " + vocabSize + " " + docsCount + "\n");
 		for (int k = 0; k < topicsCount; ++k) {
 			for (int j = 0; j < vocabSize; ++j) {
-				out.write(String.format("%.8f ", topicTermDistribution[k][j]));
+				out.write(String.format("%f ", topicTermDistribution[k][j]));
 			}
 			out.write("\n");
 		}
