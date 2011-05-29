@@ -45,7 +45,7 @@ public class PlainTextResultsStorage implements ResultsStorage {
 			}
 			out.write("\n");
 		}
-	    out.write("\n");
+		out.write("\n");
 
 		out.close();
 	}
