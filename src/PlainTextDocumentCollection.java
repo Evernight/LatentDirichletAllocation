@@ -89,4 +89,3 @@ public class PlainTextDocumentCollection implements DocumentCollection {
 		return categories.get(id);
 	}
 }
-

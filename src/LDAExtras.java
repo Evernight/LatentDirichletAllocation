@@ -31,6 +31,14 @@ public class LDAExtras {
 		this.categoriesCount = collection.getCategoriesCount();
 	}
 
+	public double[][] getTopicCategoryDistribution() {
+		return topicCategoryDistribution;
+	}
+
+	public double[][] getTopicDocumentDistribution() {
+		return topicDocumentDistribution;
+	}
+
 	public void calculateTopicDocumentDistribution() {
 		double[][] documentTopicDistribution = lda.getDocumentTopicDistribution();
 		this.topicDocumentDistribution = new double[this.topicsCount][this.documentsCount];

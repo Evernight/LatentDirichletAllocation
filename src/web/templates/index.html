@@ -1,0 +1,18 @@
+{% include 'header.html' %}
+		<div id ="i_lda_topics">
+			<h3>LDA topics</h3>
+			<p>
+			{% for item in topics %} <a href="lda_topic/{{ item }}">{{ item }}</a> {% endfor %}
+			</p>
+		</div>
+		<div id="i_categories">
+			<h3>Reuters categories</h3>
+			{% for item in categories %} <a href="category/{{ item }}">{{ item }}</a> {% endfor %}
+		</div>
+		{#
+		<div id ="documents">
+			<h3>Documents</h3>
+			{% for item in documents %} <a href="document/{{ item }}">{{ item }}</a> {% endfor %}
+		</div>
+		#}
+{% include 'footer.html' %}

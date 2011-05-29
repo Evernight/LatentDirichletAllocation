@@ -9,41 +9,42 @@ class LDAResults:
 
 	def loadFromFile(self, filename):
 		params = open(filename, "r")
-		self.topics_count, self.vocab_size, self.docs_count = map(int, params.readline().split())
+		self.topics_count, self.vocab_size, self.docs_count, self.categ_count = map(int, params.readline().split())
 		for topic in xrange(self.topics_count):
 			word_dist = map(float, params.readline().split())
 			for word in xrange(self.vocab_size):
 				self.topic_word_dist[topic, word] = word_dist[word]
 		params.readline()
+
 		for doc in xrange(self.docs_count):
 			topic_dist = map(float, params.readline().split())
 			for topic in xrange(self.topics_count):
 				self.doc_topic_dist[doc, topic] = topic_dist[topic]
+		params.readline()
 
-	def process(self, collection):
-		topic_sum = {}
 		for topic in xrange(self.topics_count):
-			topic_sum = sum([self.doc_topic_dist[doc, topic] for doc in xrange(self.docs_count)])
+			doc_dist = map(float, params.readline().split())
 			for doc in xrange(self.docs_count):
-				self.topic_doc_dist[topic, doc] = self.doc_topic_dist[doc, topic] / topic_sum
+				self.topic_doc_dist[topic, doc] = doc_dist[doc]
+		params.readline()
 
-		"""for topic in xrange(self.topics_count):
-			print topic
-			for doc in xrange(self.docs_count):
-				for category in reuters.categories(collection.doc_name_by_id):
-					if (topic, category) not in self.topic_category_dist:
-						self.topic_category_dist[topic, category] = 0
-					self.topic_category_dist[topic, category] += self.topic_doc_dist[topic, doc]"""
+		for topic in xrange(self.topics_count):
+			categ_dist = map(float, params.readline().split())
+			for categ in xrange(self.categ_count):
+				self.topic_category_dist[topic, categ] = categ_dist[categ]
+		params.readline()
 
 class TextCollection:
 	def __init__(self):
 		self.word_by_id = {}
 		self.doc_name_by_id = {}
 		self.id_by_doc_name = {}
+		self.categ_name_by_id = {}
 	
-	def loadFromFiles(self, dictionary_filename, docs_filename):
+	def loadFromFiles(self, dictionary_filename, docs_filename, categ_map_filename):
 		dictionary = open(dictionary_filename, "r")
 		docs = open(docs_filename, "r")
+		categ_map = open(categ_map_filename, "r")
 
 		self.vocab_size = int(dictionary.readline())
 		words = map(lambda x : tuple(x.split()), dictionary.readlines())
@@ -54,4 +55,8 @@ class TextCollection:
 		lines = docs.readlines()
 		self.doc_name_by_id = dict(map(lambda x: (int(x.split()[0]), x.split()[1]), lines))
 		self.id_by_doc_name = dict(map(lambda x: (x.split()[1], int(x.split()[0])), lines))
+
+		self.categ_count = int(categ_map.readline())
+		lines = categ_map.readlines()
+		self.categ_name_by_id = dict(map(lambda x: (int(x.split()[0]), x.split()[1]), lines))
 

@@ -1,6 +1,5 @@
 import org.apache.log4j.BasicConfigurator;
 
-import java.io.FileNotFoundException;
 import java.util.Locale;
 
 /**
@@ -11,7 +10,7 @@ import java.util.Locale;
  * To change this template use File | Settings | File Templates.
  */
 public class ReuterLDARunner {
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws Exception {
 		Locale.setDefault(Locale.US);
 		BasicConfigurator.configure();
 		PlainTextDocumentCollection reuters = new PlainTextDocumentCollection(
@@ -25,9 +24,12 @@ public class ReuterLDARunner {
 		lda.initialize();
 		lda.run();
 		lda.generateParameters();
-		//lda.storeParametersToFile("reuters/result/temp.txt");
 
 		LDAExtras ldae = new LDAExtras(lda, reuters);
 		ldae.calculateAll();
+
+		ResultsStorage storage = new PlainTextResultsStorage("reuters/result/temp.txt");
+		storage.setSources(lda, ldae);
+		storage.write();
 	}
 }

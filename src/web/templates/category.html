@@ -1,0 +1,12 @@
+{% include 'header.html' %}
+<div id="documents">
+	<h3>Documents with category '{{ category }}'</h3>
+	{% for item in documents %} <a href="/document/{{ item }}">{{ item }}</a> {% endfor %}
+</div>
+{#
+<div id ="words">
+	<h3>Documents</h3>
+	{% for item in documents %} <a href="/document/{{ item }}">{{ item }}</a> {% endfor %}
+</div>
+#}
+{% include 'footer.html' %}

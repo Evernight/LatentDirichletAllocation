@@ -5,7 +5,8 @@ from DBAdapters import LDAResults, TextCollection
 from nltk.corpus import reuters
 import sys
 
-import os.path
+import os.path 
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 templates_env = Environment(loader=FileSystemLoader('templates'))
@@ -13,6 +14,9 @@ lda_results = LDAResults()
 text_collection = TextCollection()
 
 WORDS_LIMIT = 200
+DOCS_LIMIT = 200
+CATEG_LIMIT = 200
+TOPICS_LIMIT = 200
 		
 class WebServer:
 	@cherrypy.expose
@@ -40,13 +44,11 @@ class WebServer:
 
 		doc_distribution = [(doc, lda_results.topic_doc_dist[id, doc]) for doc in xrange(lda_results.docs_count)]
 		doc_distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		doc_distribution = doc_distribution[:WORDS_LIMIT]
+		doc_distribution = doc_distribution[:DOCS_LIMIT]
 
-		doc_distribution = [(doc, lda_results.topic_doc_dist[id, doc]) for doc in xrange(lda_results.docs_count)]
-		doc_distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		doc_distribution = doc_distribution[:WORDS_LIMIT]
-
-		categ_distribution = []
+		categ_distribution = [(text_collection.categ_name_by_id[categ], lda_results.topic_category_dist[id, categ]) for categ in xrange(lda_results.categ_count)]
+		categ_distribution.sort(lambda x, y: cmp(y[1] , x[1]))
+		categ_distribution = categ_distribution[:CATEG_LIMIT]
 
 		params = {
 			"distribution" : distribution,
@@ -66,7 +68,7 @@ class WebServer:
 
 		distribution = [(topic, lda_results.doc_topic_dist[id, topic]) for topic in xrange(lda_results.topics_count)]
 		distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		distribution = distribution[:200]
+		distribution = distribution[:TOPICS_LIMIT]
 
 		params = {
 			"text" : reuters.raw(text_collection.doc_name_by_id[id]),
@@ -94,10 +96,10 @@ if __name__=="__main__":
 
 	text_collection.loadFromFiles(
 		dictionary_filename="reuters/" + input_dir + "/vocabuary.txt", 
-		docs_filename="reuters/" + input_dir + "/docs.txt"
+		docs_filename="reuters/" + input_dir + "/docs.txt",
+		categ_map_filename="reuters/" + input_dir + "/categories_mapping.txt"
 	)
-	lda_results.loadFromFile("reuters/result/parameters.txt")
-	lda_results.process(text_collection)
+	lda_results.loadFromFile("reuters/result/temp.txt")
 
 	cherrypy.quickstart(WebServer(), config="cherry.conf")
 

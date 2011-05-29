@@ -69,9 +69,9 @@ public class LatentDirichletAllocation {
 		double sum = 0;
 		for (int k = 0; k < topicsCount; ++k) {
 			double left =
-					(double) (topicTermCount[k][wordID] + beta) / (topicTermSum[k] + beta * vocabSize);
+					(topicTermCount[k][wordID] + beta) / (topicTermSum[k] + beta * vocabSize);
 			double right =
-					(double) (documentTopicCount[docID][k] + alpha) / (documentTopicSum[docID] + alpha * topicsCount);
+					(documentTopicCount[docID][k] + alpha) / (documentTopicSum[docID] + alpha * topicsCount);
 			p[k] = left * right;
 			sum += p[k];
 		}
@@ -139,7 +139,7 @@ public class LatentDirichletAllocation {
 	public void run() throws FileNotFoundException {
 		// Sampling
 		for (int iteration = 0; iteration < iterationsCount; ++iteration) {
-			log.info(String.format("Running %d sample", iteration));
+			log.info(String.format("Running sample #%d", iteration + 1));
 			nextSample();
 			if (iteration != 0 && iteration % backupDelay == 0)
 				saveCurrentSampleToFile("reuters/samples/sample" + String.valueOf(iteration) + ".txt");
@@ -180,9 +180,5 @@ public class LatentDirichletAllocation {
 		}
 
 		out.close();
-	}
-
-	public void storeParametersToFile(String filename) throws FileNotFoundException {
-		log.info(String.format("Storing data to file %s", filename));
 	}
 }
