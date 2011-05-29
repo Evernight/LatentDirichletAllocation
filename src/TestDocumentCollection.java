@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,5 +32,13 @@ public class TestDocumentCollection implements DocumentCollection {
 
 	public int getVocabSize() {
 		return 4;
+	}
+
+	public int getCategoriesCount() {
+		return 0;
+	}
+
+	public List<Integer> getCategories(int id) {
+		return null;
 	}
 }

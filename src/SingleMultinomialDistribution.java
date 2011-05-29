@@ -22,9 +22,11 @@ public class SingleMultinomialDistribution {
 		double r = random.nextDouble();
 		int i = 0;
 		while (true) {
-			if (s[i] + 1e-9 >= r)
+			if (s[i] >= r)
 				return i;
 			++i;
+			if (i == s.length)
+				return i - 1;
 		}
 	}
 }

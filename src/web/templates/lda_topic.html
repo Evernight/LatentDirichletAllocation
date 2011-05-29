@@ -1,5 +1,5 @@
 {% include 'header.html' %}
-<div id ="words">
+<div id ="words_probs">
 	<h3>Words</h3>
 	<table class="probabilities">
 	<tr>
@@ -11,6 +11,36 @@
 		<td>{{ item[0] }}</td> <td>{{ item[1] }}</td>
 		</tr>
 	{% endfor %}
+	</table>
+</div>
+<div id ="docs_probs">
+	<h3>Documents pseudo probability</h3>
+	<table class="probabilities">
+	<tr>
+	<th>doc</th>
+	<th>probability</th>
+	</tr>
+	{% for item in doc_dist %}
+		<tr>
+		<td><a href="/document/{{ item[0] }}">{{ item[0] }}</a></td> <td>{{ item[1] }}</td>
+		</tr>
+	{% endfor %}
+	
+	</table>
+</div>
+<div id ="categ_probs">
+	<h3>Categories pseudo probability</h3>
+	<table class="probabilities">
+	<tr>
+	<th>category</th>
+	<th>probability</th>
+	</tr>
+	{% for item in categ_dist %}
+		<tr>
+		<td><a href="/category/{{ item[0] }}">{{ item[0] }}</a></td> <td>{{ item[1] }}</td>
+		</tr>
+	{% endfor %}
+	
 	</table>
 </div>
 {% include 'footer.html' %}

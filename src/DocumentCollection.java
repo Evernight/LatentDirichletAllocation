@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,8 +9,11 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface DocumentCollection {
-	public int getDocumentsCount();
-	public Map<Integer, Integer> getDocument(int id);
+	int getDocumentsCount();
+	Map<Integer, Integer> getDocument(int id);
 
 	int getVocabSize();
+
+	int getCategoriesCount();
+	List<Integer> getCategories(int id);
 }

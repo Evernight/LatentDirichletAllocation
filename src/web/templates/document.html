@@ -19,4 +19,10 @@
 	{% endfor %}
 	</table>
 </div>
+<div id="categories">
+	<h3>Reuters categories</h3>
+	{% for item in categories %}
+		<a href="/category/{{ item }}">{{ item }}</a>
+	{% endfor %}
+</div>
 {% include 'footer.html' %}

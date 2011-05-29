@@ -24,7 +24,8 @@ public class LatentDirichletAllocation {
 	public double alpha = (double) 50/topicsCount;
 	public double beta = 0.01;
 
-	public int iterationsCount = 15;
+	public int iterationsCount = 1;
+	private int backupDelay = 40;
 
 	//Private structures
 	private DocumentCollection collection;
@@ -37,8 +38,8 @@ public class LatentDirichletAllocation {
 	private int[][] topicTermCount;
 	private int[] topicTermSum;
 
-	private int vocabSize;
-	private int docsCount;
+	public int vocabSize;
+	public int docsCount;
 
 	// Resulting distributions
 	private double topicTermDistribution[][];
@@ -135,11 +136,13 @@ public class LatentDirichletAllocation {
 		}
 	}
 
-	public void run() {
+	public void run() throws FileNotFoundException {
 		// Sampling
 		for (int iteration = 0; iteration < iterationsCount; ++iteration) {
 			log.info(String.format("Running %d sample", iteration));
 			nextSample();
+			if (iteration != 0 && iteration % backupDelay == 0)
+				saveCurrentSampleToFile("reuters/samples/sample" + String.valueOf(iteration) + ".txt");
 		}
 	}
 
@@ -165,6 +168,7 @@ public class LatentDirichletAllocation {
 	}
 
 	public void saveCurrentSampleToFile(String filename) throws FileNotFoundException {
+		log.info("Saving current sample to " + filename);
 		PrintWriter out = new PrintWriter(new File(filename));
 
 		out.write(topicsCount + " " + vocabSize + " " + docsCount + "\n");
@@ -180,24 +184,5 @@ public class LatentDirichletAllocation {
 
 	public void storeParametersToFile(String filename) throws FileNotFoundException {
 		log.info(String.format("Storing data to file %s", filename));
-		PrintWriter out = new PrintWriter(new File(filename));
-
-		out.write(topicsCount + " " + vocabSize + " " + docsCount + "\n");
-		for (int k = 0; k < topicsCount; ++k) {
-			for (int j = 0; j < vocabSize; ++j) {
-				out.write(String.format("%f ", topicTermDistribution[k][j]));
-			}
-			out.write("\n");
-		}
-
-		out.write("\n");
-		for (int i = 0; i < docsCount; ++i) {
-			for (int k = 0; k < topicsCount; ++k) {
-				out.write(String.format("%f ", documentTopicDistribution[i][k]));
-			}
-			out.write("\n");
-		}
-
-		out.close();
 	}
 }

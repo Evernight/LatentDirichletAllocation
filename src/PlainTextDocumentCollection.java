@@ -2,9 +2,7 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,29 +21,52 @@ public class PlainTextDocumentCollection implements DocumentCollection {
 	int vocabSize;
 	Map<Integer, Map<Integer, Integer>> documents;
 
-	public PlainTextDocumentCollection(String invertedIndexFilename, String dictionaryFilename) throws FileNotFoundException {
-		this.invertedIndexFilename = invertedIndexFilename;
+	int categoriesCount;
+	Map<Integer, List<Integer>> categories;
+
+	public PlainTextDocumentCollection(
+			String indexFilename, String dictionaryFilename,
+			String categoriesFilename, String categoriesMappingFilename) throws FileNotFoundException {
+		this.invertedIndexFilename = indexFilename;
 		this.dictionaryFilename = dictionaryFilename;
 
-		log.info("Opening inverted index");
-		Scanner invertedIndex = new Scanner(new File(invertedIndexFilename));
-		documentsCount = invertedIndex.nextInt();
+		log.info("Opening index");
+		Scanner index = new Scanner(new File(indexFilename));
+		documentsCount = index.nextInt();
 		documents = new HashMap<Integer, Map<Integer, Integer>>();
 		for (int i = 0; i < documentsCount; ++i) {
 			Map<Integer, Integer> doc = new HashMap<Integer, Integer>();
-			int docID = invertedIndex.nextInt();
-			int count = invertedIndex.nextInt();
+			int docID = index.nextInt();
+			int count = index.nextInt();
 			for (int j = 0; j < count; ++j) {
-				doc.put(invertedIndex.nextInt(), invertedIndex.nextInt());
+				doc.put(index.nextInt(), index.nextInt());
 			}
 			documents.put(docID, doc);
 		}
-		invertedIndex.close();
+		index.close();
 
 		log.info("Opening dictionary");
 		Scanner dictionary = new Scanner(new File(dictionaryFilename));
 		vocabSize = dictionary.nextInt();
 		dictionary.close();
+
+		log.info("Opening categories file");
+		Scanner categoriesFile = new Scanner(new File(categoriesFilename));
+
+		categories = new HashMap<Integer, List<Integer>>();
+		for (int i = 0; i < documentsCount; ++i) {
+			List<Integer> cur = new ArrayList<Integer>();
+			int count = categoriesFile.nextInt();
+			for (int j = 0; j < count; ++j) {
+				cur.add(categoriesFile.nextInt());
+			}
+			categories.put(i, cur);
+		}
+		categoriesFile.close();
+
+		Scanner categoriesMappingFile = new Scanner(new File(categoriesMappingFilename));
+		categoriesCount = categoriesMappingFile.nextInt();
+		categoriesMappingFile.close();
 	}
 
 	public int getDocumentsCount() {
@@ -59,4 +80,13 @@ public class PlainTextDocumentCollection implements DocumentCollection {
 	public int getVocabSize() {
 		return vocabSize;
 	}
+
+	public int getCategoriesCount() {
+		return categoriesCount;
+	}
+
+	public List<Integer> getCategories(int id) {
+		return categories.get(id);
+	}
 }
+

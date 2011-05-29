@@ -1,7 +1,11 @@
+from nltk.corpus import reuters
+
 class LDAResults:
 	def __init__(self):
 		self.topic_word_dist = {}
 		self.doc_topic_dist = {}
+		self.topic_doc_dist = {}
+		self.topic_category_dist = {}
 
 	def loadFromFile(self, filename):
 		params = open(filename, "r")
@@ -15,6 +19,21 @@ class LDAResults:
 			topic_dist = map(float, params.readline().split())
 			for topic in xrange(self.topics_count):
 				self.doc_topic_dist[doc, topic] = topic_dist[topic]
+
+	def process(self, collection):
+		topic_sum = {}
+		for topic in xrange(self.topics_count):
+			topic_sum = sum([self.doc_topic_dist[doc, topic] for doc in xrange(self.docs_count)])
+			for doc in xrange(self.docs_count):
+				self.topic_doc_dist[topic, doc] = self.doc_topic_dist[doc, topic] / topic_sum
+
+		"""for topic in xrange(self.topics_count):
+			print topic
+			for doc in xrange(self.docs_count):
+				for category in reuters.categories(collection.doc_name_by_id):
+					if (topic, category) not in self.topic_category_dist:
+						self.topic_category_dist[topic, category] = 0
+					self.topic_category_dist[topic, category] += self.topic_doc_dist[topic, doc]"""
 
 class TextCollection:
 	def __init__(self):
