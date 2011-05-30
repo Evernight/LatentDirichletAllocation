@@ -1,62 +1,67 @@
-from nltk.corpus import reuters
+from sqlite3 import connect
 
-class LDAResults:
-	def __init__(self):
-		self.topic_word_dist = {}
-		self.doc_topic_dist = {}
-		self.topic_doc_dist = {}
-		self.topic_category_dist = {}
+class SQLLDAResults:
+	def __init__(self, filename):
+		self.filename = filename
+		conn = connect(filename).cursor()
 
-	def loadFromFile(self, filename):
-		params = open(filename, "r")
-		self.topics_count, self.vocab_size, self.docs_count, self.categ_count = map(int, params.readline().split())
-		for topic in xrange(self.topics_count):
-			word_dist = map(float, params.readline().split())
-			for word in xrange(self.vocab_size):
-				self.topic_word_dist[topic, word] = word_dist[word]
-		params.readline()
+		conn.execute("SELECT * FROM variables")
+		var = dict(conn)
+		self.topics_count = var['topics_count']
+		self.docs_count = var['docs_count']
+		self.vocab_size = var['vocab_size']
+		self.categ_count = var['categ_count']
 
-		for doc in xrange(self.docs_count):
-			topic_dist = map(float, params.readline().split())
-			for topic in xrange(self.topics_count):
-				self.doc_topic_dist[doc, topic] = topic_dist[topic]
-		params.readline()
+		conn.close()
 
-		for topic in xrange(self.topics_count):
-			doc_dist = map(float, params.readline().split())
-			for doc in xrange(self.docs_count):
-				self.topic_doc_dist[topic, doc] = doc_dist[doc]
-		params.readline()
+	def get_categories_list(self):
+		conn = connect(self.filename).cursor()
+		conn.execute("SELECT category FROM categories")
+		result = map(lambda x: x[0], list(conn))
+		conn.close()
+		return result
 
-		for topic in xrange(self.topics_count):
-			categ_dist = map(float, params.readline().split())
-			for categ in xrange(self.categ_count):
-				self.topic_category_dist[topic, categ] = categ_dist[categ]
-		params.readline()
+	def get_document_categories(self, id):
+		conn = connect(self.filename).cursor()
+		conn.execute("""
+			SELECT category FROM doc_category INNER JOIN categories ON doc_category.category_id=categories.category_id
+			WHERE doc_id=?""", [id])
+		result = map(lambda x: x[0], list(conn))
+		conn.close()
+		return result
 
-class TextCollection:
-	def __init__(self):
-		self.word_by_id = {}
-		self.doc_name_by_id = {}
-		self.id_by_doc_name = {}
-		self.categ_name_by_id = {}
+	def get_topic_word_distribution(self, id):
+		conn = connect(self.filename).cursor()
+		conn.execute("""
+			SELECT word, probability FROM topic_word INNER JOIN words ON topic_word.word_id=words.word_id
+			WHERE topic_id=? ORDER BY probability DESC LIMIT 200""", [id])
+		result = list(conn)
+		result = map(lambda x: (x[0], "%.6f" % x[1]), result)
+		conn.close()
+		return result
 	
-	def loadFromFiles(self, dictionary_filename, docs_filename, categ_map_filename):
-		dictionary = open(dictionary_filename, "r")
-		docs = open(docs_filename, "r")
-		categ_map = open(categ_map_filename, "r")
-
-		self.vocab_size = int(dictionary.readline())
-		words = map(lambda x : tuple(x.split()), dictionary.readlines())
-		words = map(lambda x: (int(x[0]), x[1]), words)
-		self.word_by_id = dict(words)
-
-		self.docs_count = int(docs.readline())
-		lines = docs.readlines()
-		self.doc_name_by_id = dict(map(lambda x: (int(x.split()[0]), x.split()[1]), lines))
-		self.id_by_doc_name = dict(map(lambda x: (x.split()[1], int(x.split()[0])), lines))
-
-		self.categ_count = int(categ_map.readline())
-		lines = categ_map.readlines()
-		self.categ_name_by_id = dict(map(lambda x: (int(x.split()[0]), x.split()[1]), lines))
-
+	def get_topic_doc_distribution(self, id):
+		conn = connect(self.filename).cursor()
+		conn.execute("SELECT doc_id, probability FROM topic_doc WHERE topic_id=? ORDER BY probability DESC LIMIT 200", [id])
+		result = list(conn)
+		result = map(lambda x: (x[0], "%.6f" % x[1]), result)
+		conn.close()
+		return result
+	
+	def get_topic_category_distribution(self, id):
+		conn = connect(self.filename).cursor()
+		conn.execute("""
+			SELECT category, probability FROM topic_category INNER JOIN categories ON topic_category.category_id=categories.category_id
+			WHERE topic_id=? ORDER BY probability DESC LIMIT 200""", [id])
+		result = list(conn)
+		result = map(lambda x: (x[0], "%.6f" % x[1]), result)
+		conn.close()
+		return result
+	
+	def get_document_topic_distribution(self, id):
+		conn = connect(self.filename).cursor()
+		conn.execute("SELECT topic_id, probability FROM doc_topic WHERE doc_id=? ORDER BY probability DESC LIMIT 200", [id])
+		result = list(conn)
+		result = map(lambda x: (x[0], "%.6f" % x[1]), result)
+		conn.close()
+		return result

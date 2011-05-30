@@ -1,8 +1,7 @@
 #!/usr/bin/python
 import cherrypy 
 from jinja2 import Environment, FileSystemLoader 
-from DBAdapters import LDAResults, TextCollection
-from nltk.corpus import reuters
+from DBAdapters import SQLLDAResults
 import sys
 
 import os.path 
@@ -10,14 +9,8 @@ import os.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 templates_env = Environment(loader=FileSystemLoader('templates'))
-lda_results = LDAResults()
-text_collection = TextCollection()
+lda_results = None
 
-WORDS_LIMIT = 200
-DOCS_LIMIT = 200
-CATEG_LIMIT = 200
-TOPICS_LIMIT = 200
-		
 class WebServer:
 	@cherrypy.expose
 	def index(self):
@@ -26,7 +19,7 @@ class WebServer:
 			"index" : True,
 			"documents" : range(lda_results.docs_count),
 			"topics" : range(lda_results.topics_count),
-			"categories" : reuters.categories(),
+			"categories" : lda_results.get_categories_list(),
 			"title" : "index page"
 		}
 		return template.render(**params)
@@ -38,20 +31,12 @@ class WebServer:
 		id = int(id)
 		template = templates_env.get_template("lda_topic.html")
 
-		distribution = [(word[1], lda_results.topic_word_dist[(id, word[0])]) for word in text_collection.word_by_id.iteritems()]
-		distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		distribution = distribution[:WORDS_LIMIT]
-
-		doc_distribution = [(doc, lda_results.topic_doc_dist[id, doc]) for doc in xrange(lda_results.docs_count)]
-		doc_distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		doc_distribution = doc_distribution[:DOCS_LIMIT]
-
-		categ_distribution = [(text_collection.categ_name_by_id[categ], lda_results.topic_category_dist[id, categ]) for categ in xrange(lda_results.categ_count)]
-		categ_distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		categ_distribution = categ_distribution[:CATEG_LIMIT]
+		word_distribution = lda_results.get_topic_word_distribution(id)
+		doc_distribution = lda_results.get_topic_doc_distribution(id)
+		categ_distribution = lda_results.get_topic_category_distribution(id)
 
 		params = {
-			"distribution" : distribution,
+			"distribution" : word_distribution,
 			"doc_dist" : doc_distribution,
 			"categ_dist" : categ_distribution,
 			"title" : "topic " + str(id)
@@ -66,14 +51,13 @@ class WebServer:
 		id = int(id)
 		template = templates_env.get_template("document.html")
 
-		distribution = [(topic, lda_results.doc_topic_dist[id, topic]) for topic in xrange(lda_results.topics_count)]
-		distribution.sort(lambda x, y: cmp(y[1] , x[1]))
-		distribution = distribution[:TOPICS_LIMIT]
+		distribution = lda_results.get_document_topic_distribution(id)
 
 		params = {
-			"text" : reuters.raw(text_collection.doc_name_by_id[id]),
+			#TODO "text" : reuters.raw(text_collection.doc_name_by_id[id]),
+			"text" : "Not supported yet",
 			"distribution" : distribution,
-			"categories" : reuters.categories(text_collection.doc_name_by_id[id]),
+			"categories" : lda_results.get_document_categories(id), #TODO
 			"title" : "document " + str(id)
 		}
 		return template.render(params)
@@ -85,21 +69,14 @@ class WebServer:
 		template = templates_env.get_template("category.html")
 		params = {
 			"category" : title,
-			"documents" : map(lambda x: text_collection.id_by_doc_name[x], reuters.fileids(categories=[title])),
-			"title" : "category '" + title + "'"
+			# TODO "documents" : map(lambda x: text_collection.id_by_doc_name[x], reuters.fileids(categories=[title])),
+			"documents" : ["Not supported yet"],
+			"title" : "category '%s'" % title
 		}
 		return template.render(**params)
-		
 
 if __name__=="__main__":
-	input_dir = sys.argv[1]
-
-	text_collection.loadFromFiles(
-		dictionary_filename="reuters/" + input_dir + "/vocabuary.txt", 
-		docs_filename="reuters/" + input_dir + "/docs.txt",
-		categ_map_filename="reuters/" + input_dir + "/categories_mapping.txt"
-	)
-	lda_results.loadFromFile("reuters/result/temp.txt")
+	lda_results = SQLLDAResults('results.db')
 
 	cherrypy.quickstart(WebServer(), config="cherry.conf")
 

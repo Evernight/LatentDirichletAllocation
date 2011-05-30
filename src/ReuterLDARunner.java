@@ -28,7 +28,7 @@ public class ReuterLDARunner {
 		LDAExtras ldae = new LDAExtras(lda, reuters);
 		ldae.calculateAll();
 
-		ResultsStorage storage = new PlainTextResultsStorage("reuters/result/temp.txt");
+		ResultsStorage storage = new PlainTextResultsStorage("reuters/data_3/result/distributions.txt");
 		storage.setSources(lda, ldae);
 		storage.write();
 	}

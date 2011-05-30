@@ -20,11 +20,11 @@ public class LatentDirichletAllocation {
 	private static Logger log = Logger.getLogger(LatentDirichletAllocation.class);
 
 	// Parameters
-	public int topicsCount = 10;
+	public int topicsCount = 120;
 	public double alpha = (double) 50/topicsCount;
 	public double beta = 0.01;
 
-	public int iterationsCount = 1;
+	public int iterationsCount = 500;
 	private int backupDelay = 40;
 
 	//Private structures
