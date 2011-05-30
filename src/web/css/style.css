@@ -1,0 +1,72 @@
+body, html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#main {
+	width: 95%;
+	margin: 0 auto;
+}
+
+#header_table {
+	width: 100%;
+	text-align: center;
+}
+
+h1 {
+	margin: 10;
+}
+
+.probabilities {
+	margin: 0 auto;
+	width: 300;
+}
+
+.probabilities th {
+	text-align: left;
+	padding: 0;
+	margin: 0;
+}
+
+#text_container {
+	text-align: left;
+	margin: 0 auto;
+	width: 70%;
+	text-align: center;
+}
+
+#words_probs {
+	width: 33%;
+	float: left;
+}
+
+#docs_probs {
+	width: 33%;
+	float: left;
+}
+
+#lda_topics {
+	float: left;
+	width: 50%;
+}
+
+#categories {
+	float: left;
+	width: 33%;
+}
+
+#categ_probs {
+	float: left;
+	width: 33%;
+}
+
+#i_lda_topics {
+	width: 70%;
+	margin: 0 auto;
+}
+
+#i_categories {
+	width: 70%;
+	margin: 0 auto;
+}
